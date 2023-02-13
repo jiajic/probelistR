@@ -153,11 +153,13 @@ setMethod('annotatePrbList', signature(x = 'prbList', term = 'character', feats 
 setMethod('getFeats', signature('prbList'), function(x, by = NULL, query = NULL) {
 
   if(by == 'GO') {
-    query = sapply(query, function(term) {
+    GO_query = sapply(query, function(term) {
       if(term %in% names(GOHierarchy(x))) getGOHierarchical(x = x, query = term)
     }) |>
       unlist() |>
       unique()
+
+    if(!is.null(GO_query)) query = GO_query
   }
 
   query = paste0(query, collapse = '|')
