@@ -1,0 +1,32 @@
+Package: probelistR
+Title: Probe panel organizer
+Version: 0.1
+Authors@R: c(
+	person("Jiaji", "George Chen", email = "jiajic@bu.edu",
+		 role = c("aut", "cre"))
+	)
+Maintainer: Jiaji George Chen <jiajic@bu.edu>
+Description: Framework for storing and extracting probelist information
+License: MIT
+Encoding: UTF-8
+LazyData: true
+BugReports: https://github.com/jiajic/probelistR/issues
+RoxygenNote: 7.2.3
+Depends:
+    base (>= 3.5.0),
+    utils (>= 3.5.0),
+    R (>= 4.1.0),
+    methods
+Imports:
+    data.table (>= 1.12.2),
+    ggplot2 (>= 3.1.1),
+    grDevices,
+    graphics,
+    igraph (>= 1.2.4.1),
+    limma,
+    eulerr,
+    nVennR,
+    rmarkdown,
+    R.utils
+VignetteBuilder: knitr
+Config/testthat/edition: 3
