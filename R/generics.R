@@ -54,7 +54,7 @@ setMethod('sep', signature('prbList'), function(x) x@separator)
 #' @export
 setMethod('sep<-', signature('prbList'), function(x, value = ':') initialize(x, separator = value))
 #' @export
-setMethod('plotGO', signature('prbList'), function(x) plot(x@igraph))
+setMethod('plotGO', signature('prbList'), function(x) plot(x@igraph, ...))
 
 #' @export
 setMethod('copy', signature('prbList'), function(x) {
