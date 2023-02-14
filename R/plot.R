@@ -3,9 +3,7 @@
 
 # https://stackoverflow.com/questions/50430225/euler-diagram-with-eulerr-in-r
 
-#' 1. pull all rows that grep match to any of the search terms
-#' 2. see which GO terms match the search terms, order them, then assign them in new col
-#' 3. sum counts in the new column to get values
+#' Contingency table from table(prbs[]$GO)
 
 
 
@@ -21,6 +19,15 @@ plot_nVennR = function() {
 
 
 }
+
+
+
+
+plot_GO_intersect = function(...) {
+
+}
+
+
 
 
 

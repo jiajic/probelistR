@@ -53,7 +53,7 @@ setMethod('initialize', signature('prbList'), function(.Object, ...) {
       if(isTRUE(.Object@GO_initialized)) {
 
         # validity
-        if(!all(c('feat_ID', 'GO') %in% colnames(object@infoDT))) {
+        if(!all(c('feat_ID', 'GO') %in% colnames(.Object@infoDT))) {
           stop('Missing column info in data.table input\n')
         }
 
