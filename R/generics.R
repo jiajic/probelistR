@@ -114,7 +114,11 @@ setMethod('rmFeat', signature('prbList'), function(x, feat_to_remove) {
 
 #' @export
 setMethod('comments', signature('prbList'), function(x, feats) {
-  x[feat_ID %in% feats, comments, by = feat_ID]
+  comm_tbl = x[][feat_ID %in% feats, comments, by = feat_ID]
+  comm_tbl = comm_tbl[, feat_ID, by = comments]
+
+  return(comm_tbl)
+
 })
 
 
