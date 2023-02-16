@@ -16,7 +16,7 @@ setGeneric('rmFeat', function(x, ...) standardGeneric('rmFeat'))
 setGeneric('GOTerms', function(x, ...) standardGeneric('GOTerms'))
 setGeneric('GOHierarchy', function(x, parent, ...) standardGeneric('GOHierarchy'))
 setGeneric('GOHierarchy<-', function(x, parent, value, ...) standardGeneric('GOHierarchy<-'))
-setGeneric('getFeats', function(x, by, query, ...) standardGeneric('getFeats'))
+setGeneric('getFeats', function(x, query, by, ...) standardGeneric('getFeats'))
 setGeneric('validFeatIDs', function(x, ...) standardGeneric('validFeatIDs'))
 if(!isGeneric('featIDs')) setGeneric('featIDs', function(x, ...) standardGeneric('featIDs'))
 setGeneric('sep', function(x, ...) standardGeneric('sep'))
@@ -115,9 +115,14 @@ setMethod('rmFeat', signature('prbList'), function(x, feat_to_remove) {
 #' @export
 setMethod('comments', signature('prbList'), function(x, feats) {
   comm_tbl = x[][feat_ID %in% feats, comments, by = feat_ID]
-  comm_tbl = comm_tbl[, feat_ID, by = comments]
 
-  return(comm_tbl)
+  out_list = lapply(comm_tbl[, feat_ID], function(feat_i) {
+    comm_tbl[feat_ID == feat_i, unique_split(comments)]
+  })
+
+  names(out_list) = comm_tbl[, feat_ID]
+
+  return(out_list)
 
 })
 
@@ -154,7 +159,7 @@ setMethod('annotatePrbList', signature(x = 'prbList', term = 'character', feats 
 
 
 #' @export
-setMethod('getFeats', signature('prbList'), function(x, by = NULL, query = NULL) {
+setMethod('getFeats', signature('prbList'), function(x, query = NULL, by = 'GO') {
 
   if(by == 'GO') {
     GO_query = sapply(query, function(term) {

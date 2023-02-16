@@ -2,14 +2,10 @@
 % Please edit documentation in R/plot.R
 \name{plot_nVennR}
 \alias{plot_nVennR}
-\title{1. pull all rows that grep match to any of the search terms
-2. see which GO terms match the search terms, order them, then assign them in new col
-3. sum counts in the new column to get values}
+\title{Contingency table from table(prbs[]$GO)}
 \usage{
 plot_nVennR()
 }
 \description{
-1. pull all rows that grep match to any of the search terms
-2. see which GO terms match the search terms, order them, then assign them in new col
-3. sum counts in the new column to get values
+Contingency table from table(prbs[]$GO)
 }
