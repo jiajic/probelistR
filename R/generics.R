@@ -84,23 +84,7 @@ setMethod('sep<-', signature('prbList'), function(x, value = ':') initialize(x, 
 
 
 
-#' @export
-setMethod('getFeats', signature('prbList'), function(x, query = NULL, by = 'GO') {
 
-  if(by == 'GO') {
-    GO_query = sapply(query, function(term) {
-      if(term %in% names(GOHierarchy(x))) getGOHierarchical(x = x, query = term)
-    }) |>
-      unlist() |>
-      unique()
-
-    if(!is.null(GO_query)) query = GO_query
-  }
-
-  query = paste0(query, collapse = '|')
-
-  return(x@infoDT[eval(call('grepl', query, as.name(by))), feat_ID])
-})
 
 
 

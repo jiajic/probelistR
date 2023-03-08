@@ -21,9 +21,23 @@
 #'
 #' }
 
+#' @title Read clipboard as vector
+#' @name readClip
+readClip = function() {
+  clipr::read_clip()
+}
 
 
+#' @title Read clipboard as table
+#' @name readClipTbl
+readClipTbl = function(header = TRUE, sep = '\t', stringsAsFactors = FALSE, ...) {
 
+
+  clipr::read_clip_tbl(header = header,
+                       sep = sep,
+                       stringsAsFactors = stringsAsFactors,
+                       ...) |> data.table::setDT()
+}
 
 
 # Data Cleaning and Initialization ####

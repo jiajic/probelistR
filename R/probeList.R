@@ -99,9 +99,9 @@ setMethod('addFeat', signature('prbList'),
             if(length(out_feats) > 0L) {
               new_row = data.table::data.table(
                 feat_ID = out_feats,
-                GO = if(is.na(GO_terms)) NA else unique_collapse(GO_terms,
+                GO = if(any(is.na(GO_terms))) NA else unique_collapse(GO_terms,
                                                                  separator = separator),
-                comments = if(is.na(comments_to_add)) NA else unique_collapse(comments_to_add,
+                comments = if(any(is.na(comments_to_add))) NA else unique_collapse(comments_to_add,
                                                                        separator = separator)
               )
               x@infoDT = rbind(x@infoDT, new_row, fill = TRUE)
@@ -151,6 +151,44 @@ changeFeatID = function(x, old_ID, new_ID) {
 
   return(x)
 }
+
+
+
+
+
+# Getting Features ####
+
+#' @export
+setMethod('getFeats', signature('prbList'),
+          function(x, query = NULL, by = 'GO', to_clip = FALSE) {
+
+  if(by == 'GO') {
+    GO_query = sapply(query, function(term) {
+      if(term %in% names(GOHierarchy(x))) getGOHierarchical(x = x, query = term)
+    }) |>
+      unlist() |>
+      unique()
+
+    if(!is.null(GO_query)) query = GO_query
+  }
+
+  query = paste0(query, collapse = '|')
+
+  res = x@infoDT[eval(call('grepl', query, as.name(by))), feat_ID]
+
+
+  if(isTRUE(to_clip)) {
+    clipr::write_clip(res)
+  } else {
+    return(res)
+  }
+
+})
+
+
+
+
+
 
 
 
