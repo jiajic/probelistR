@@ -18,7 +18,7 @@
 #' @slot igraph igraph of hierarchy
 #' @slot separator separator symbol used within object
 #' @export
-setClass('prbList',
+prbList = setClass('prbList',
          slots = list(
            infoDT = 'ANY',
            GO_terms = 'character',
@@ -39,6 +39,28 @@ setClass('prbList',
          ))
 
 
+setMethod('show', signature('prbList'), function(object) {
+
+  nfeats = nrow(object@infoDT)
+  if(is.null(nfeats)) nfeats = 0L
+
+  if(any(is.na(GOTerms(object)))) {
+    nterms = 0L
+  } else {
+    nterms = length(GOTerms(object))
+  }
+
+
+
+
+  # prints
+  cat(class(object), ': ', sep = '')
+  cat(nfeats, ' features', ', ', sep = '')
+  cat(nterms, ' GO terms', sep = '')
+  cat(', separator: "', sep(object), '"', sep = '')
+
+
+})
 
 
 # initialize method ####

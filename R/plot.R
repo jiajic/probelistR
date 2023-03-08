@@ -1,6 +1,17 @@
 
 
 
+# plotting ####
+
+#' @export
+setMethod('plotGO', signature('prbList'), function(x) {
+
+  g = igraph::graph.data.frame(x@igraph, directed = TRUE)
+  plot(g)
+
+})
+
+
 # https://stackoverflow.com/questions/50430225/euler-diagram-with-eulerr-in-r
 
 #' Contingency table from table(prbs[]$GO)

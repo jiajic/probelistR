@@ -45,21 +45,97 @@ createPrbList = function(probe_data,
 
 
 
-# Comments ####
+# Basic Class Methods ####
+#' @include generics.R
+#' @export
+setMethod('nrow', signature('prbList'), function(x) nrow(x@infoDT))
+#' @export
+setMethod('ncol', signature('prbList'), function(x) ncol(x@infoDT))
+#' @export
+setMethod('colnames', signature('prbList'), function(x) colnames(x@infoDT))
+#' @export
+setMethod('featIDs', signature('prbList'), function(x) unique(x@infoDT$feat_ID))
+#' @export
+setMethod('[', signature(x = 'prbList', i = 'missing', j = 'missing', drop = 'missing'),
+          function(x, i, j) return(x@infoDT))
+#' @export
+setMethod('[<-', signature(x = 'prbList', i = 'missing', j = 'missing', value = 'ANY'),
+          function(x, i, j, value) {
+            x@infoDT = value
+            x
+          })
 
+
+
+
+
+# Add/Remove Feats ####
+
+#' @include generics.R
+#' @param x prbList object
+#' @param feat_to_add character vector of feature IDs to add
+#' @param GO_terms character vector of GO terms to apply to all feats in feat_to_add
+#' @param comments_to_add character vector of comments to apply to all feats in feat_to_add
+#' @export
+setMethod('addFeat', signature('prbList'),
+          function(x, feat_to_add, GO_terms = NA_character_,
+                   comments_to_add = NA_character_) {
+            separator = sep(x)
+
+            in_bool = feat_to_add %in% featIDs(x)
+
+            out_feats = feat_to_add[!in_bool]
+
+
+            # In list
+            x[][feat_ID %in% feat_to_add, GO :=
+                unique_collapse(c(GO, GO_terms),
+                                separator = separator)]
+            x[][feat_ID %in% feat_to_add, comments :=
+                unique_collapse(c(comments, comments_to_add),
+                                separator = separator)]
+
+            # Not in list
+            if(length(out_feats) > 0L) {
+              new_row = data.table::data.table(
+                feat_ID = out_feats,
+                GO = if(is.na(GO_terms)) NA else unique_collapse(GO_terms,
+                                                                 separator = separator),
+                comments = if(is.na(comments_to_add)) NA else unique_collapse(comments_to_add,
+                                                                       separator = separator)
+              )
+              x@infoDT = rbind(x@infoDT, new_row, fill = TRUE)
+            }
+
+
+            return(initialize(x))
+          })
+
+
+
+
+
+
+
+#' @include generics.R
+#' @export
+setMethod('rmFeat', signature('prbList'), function(x, feat_to_remove) {
+  x@infoDT = x@infoDT[!feat_to_remove == feat_ID, ]
+  x
+})
 
 
 
 # Feature Editing ####
 
-#' @name setFeatID
 #' @title Change a feature ID symbol for another
+#' @name changeFeatID
 #' @param x prbList
-#' @param old_ID feature ID to change
-#' @param new_ID feature ID to change to
+#' @param old_ID vector of feature IDs to change
+#' @param new_ID vector of feature IDs to change to
 #' @return prbList
 #' @export
-setFeatID = function(x, old_ID, new_ID) {
+changeFeatID = function(x, old_ID, new_ID) {
 
   if(length(old_ID) != length(new_ID)) {
     stop(wrap_txt('Inputs for the old ID vector and new ID vector',
@@ -91,11 +167,11 @@ create_igraph_net = function(x) {
     relations = data.table::data.table(from = rep(names(parent_entries), parent_entries))
     for(term in names(parent_entries)) {
       relations[from == term, to := GOHierarchy(x)[[term]]]
-      relations[, weights := 1]
+      relations[, weights := 1L]
     }
 
-    g = igraph::graph.data.frame(relations, directed = TRUE)
-    x@igraph = g
+
+    x@igraph = relations
   }
 
   return(x)

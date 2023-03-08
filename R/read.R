@@ -173,16 +173,7 @@ evaluate_GO_cols = function(probe_data, GO_cols, separator = ':') {
 
 
 
-#' @param x prbList
-#' @keywords internal
-annotate_feats = function(x, term, feats) {
-  if(!inherits(x, 'prbList')) stop(substitute(x), ' is not a prbList')
-  GO = NULL
-  x = copy(x)
-  x[][feat_ID %in% feats, GO := paste(GO, term, sep = sep(x))]
-  x = initialize(x)
-  return(x)
-}
+
 
 
 

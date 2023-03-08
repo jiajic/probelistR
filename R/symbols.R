@@ -1,5 +1,5 @@
 
-
+# For work with gene symbols
 
 #' @name validate_gene_names
 #' @title Test for non-official gene names

@@ -32,8 +32,7 @@ unique_split = function(x, separator = ':') {
 
 
 
-# GO ####
-
+# GO searches ####
 
 #' @name getGOHierarchical
 #' @title Get GO terms in a hierarchical manner
@@ -79,6 +78,9 @@ getGOHierarchical = function(x, query, visited_terms = c()) {
 
   return(u_terms)
 }
+
+
+
 
 
 

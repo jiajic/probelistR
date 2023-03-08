@@ -3,6 +3,7 @@
 \docType{class}
 \name{prbList-class}
 \alias{prbList-class}
+\alias{prbList}
 \title{Container for probelist information}
 \description{
 Container for probelist information
