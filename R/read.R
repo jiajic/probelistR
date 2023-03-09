@@ -48,7 +48,6 @@ readClipTbl = function(header = TRUE, sep = '\t', ...) {
 
   clipr::read_clip_tbl(header = header,
                        sep = sep,
-                       stringsAsFactors = stringsAsFactors,
                        ...) |> data.table::setDT()
 }
 
