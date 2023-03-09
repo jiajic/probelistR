@@ -23,14 +23,27 @@
 
 #' @title Read clipboard as vector
 #' @name readClip
+#' @export
 readClip = function() {
   clipr::read_clip()
 }
 
 
+#' @title Write to clipboard
+#' @name writeClip
+#' @export
+writeClip = function() {
+  clipr::write_clip()
+}
+
+
 #' @title Read clipboard as table
 #' @name readClipTbl
-readClipTbl = function(header = TRUE, sep = '\t', stringsAsFactors = FALSE, ...) {
+#' @param header whether to read first line as colnames
+#' @param sep separator symbol to use when reading
+#' @param ... additional params to pass to read.table()
+#' @export
+readClipTbl = function(header = TRUE, sep = '\t', ...) {
 
 
   clipr::read_clip_tbl(header = header,

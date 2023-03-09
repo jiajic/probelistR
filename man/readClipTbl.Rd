@@ -4,7 +4,14 @@
 \alias{readClipTbl}
 \title{Read clipboard as table}
 \usage{
-readClipTbl(header = TRUE, sep = "\\t", stringsAsFactors = FALSE, ...)
+readClipTbl(header = TRUE, sep = "\\t", ...)
+}
+\arguments{
+\item{header}{whether to read first line as colnames}
+
+\item{sep}{separator symbol to use when reading}
+
+\item{...}{additional params to pass to read.table()}
 }
 \description{
 Read clipboard as table

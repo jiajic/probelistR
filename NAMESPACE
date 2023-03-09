@@ -2,8 +2,12 @@
 
 export(changeFeatID)
 export(createPrbList)
+export(feature)
 export(getGOHierarchical)
 export(prbList)
+export(readClip)
+export(readClipTbl)
+export(writeClip)
 exportClasses(prbList)
 exportMethods("GO<-")
 exportMethods("GOHierarchy<-")

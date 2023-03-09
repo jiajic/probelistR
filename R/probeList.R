@@ -158,6 +158,29 @@ changeFeatID = function(x, old_ID, new_ID) {
 
 # Getting Features ####
 
+
+#' @title Examine feature
+#' @name feature
+#' @param x prbList object
+#' @param feat feature to examine
+#' @param info annotation columns to pull from
+#' @export
+feature = function(x, feat, info = c('GO', 'comments')) {
+
+  separator = sep(x)
+  return_list = lapply(info, function(col_to_use) {
+    x[][feat_ID == feat, col_to_use, with = FALSE] |>
+    unlist() |>
+    unique_split(separator = separator)
+  })
+  names(return_list) = info
+  return(return_list)
+}
+
+
+
+
+
 #' @export
 setMethod('getFeats', signature('prbList'),
           function(x, query = NULL, by = 'GO', to_clip = FALSE) {
@@ -208,8 +231,9 @@ create_igraph_net = function(x) {
       relations[, weights := 1L]
     }
 
+    g = igraph::graph.data.frame(relations, directed = TRUE)
 
-    x@igraph = relations
+    x@igraph = g
   }
 
   return(x)
