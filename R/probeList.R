@@ -54,7 +54,14 @@ setMethod('ncol', signature('prbList'), function(x) ncol(x@infoDT))
 #' @export
 setMethod('colnames', signature('prbList'), function(x) colnames(x@infoDT))
 #' @export
-setMethod('featIDs', signature('prbList'), function(x) unique(x@infoDT$feat_ID))
+setMethod('featIDs', signature('prbList'), function(x, panel_only = TRUE) {
+  if(isTRUE(panel_only)) {
+    x[][include == TRUE, feat_ID] |> unique()
+  } else {
+    x[][, feat_ID] |> unique()
+  }
+
+})
 #' @export
 setMethod('[', signature(x = 'prbList', i = 'missing', j = 'missing', drop = 'missing'),
           function(x, i, j) return(x@infoDT))
@@ -82,18 +89,16 @@ setMethod('addFeat', signature('prbList'),
                    comments_to_add = NA_character_) {
             separator = sep(x)
 
-            in_bool = feat_to_add %in% featIDs(x)
+            in_bool = feat_to_add %in% featIDs(x, panel_only = FALSE)
 
             out_feats = feat_to_add[!in_bool]
 
 
             # In list
             x[][feat_ID %in% feat_to_add, GO :=
-                unique_collapse(c(GO, GO_terms),
-                                separator = separator)]
+                  sapply(GO, function(x) unique_collapse(c(x, GO_terms), separator = separator))]
             x[][feat_ID %in% feat_to_add, comments :=
-                unique_collapse(c(comments, comments_to_add),
-                                separator = separator)]
+                  sapply(comments, function(x) unique_collapse(c(x, comments_to_add), separator = separator))]
 
             # Not in list
             if(length(out_feats) > 0L) {
@@ -105,6 +110,16 @@ setMethod('addFeat', signature('prbList'),
                                                                        separator = separator)
               )
               x@infoDT = rbind(x@infoDT, new_row, fill = TRUE)
+            }
+
+            # determine in_panel
+            not_in_panel = x[][feat_ID %in% feat_to_add & include == FALSE,]
+
+            if(nrow(not_in_panel) != 0L) {
+              # x[] = data.table::copy(x[])
+              x[][feat_ID %in% feat_to_add & include == FALSE, include := TRUE]
+              wrap_msg('Feats reassigned as in-panel:')
+              print(not_in_panel$feat_ID)
             }
 
 
@@ -181,9 +196,16 @@ feature = function(x, feat, info = c('GO', 'comments')) {
 
 
 
+#' @title Get features by annotation
+#' @name getFeats
+#' @param x prbList object
+#' @param query query term to search annotations by
+#' @param by column to query by
+#' @param to_clip write results to clipboard
+#' @param in_panel only get features set as in panel
 #' @export
 setMethod('getFeats', signature('prbList'),
-          function(x, query = NULL, by = 'GO', to_clip = FALSE) {
+          function(x, query = NULL, by = 'GO', to_clip = FALSE, panel_only = TRUE) {
 
   if(by == 'GO') {
     GO_query = sapply(query, function(term) {
@@ -197,7 +219,9 @@ setMethod('getFeats', signature('prbList'),
 
   query = paste0(query, collapse = '|')
 
-  res = x@infoDT[eval(call('grepl', query, as.name(by))), feat_ID]
+  if(isTRUE(panel_only)) res = x@infoDT[eval(call('grepl', query, as.name(by))) & include == TRUE, feat_ID]
+  else res = x@infoDT[eval(call('grepl', query, as.name(by))), feat_ID]
+
 
 
   if(isTRUE(to_clip)) {
@@ -210,6 +234,32 @@ setMethod('getFeats', signature('prbList'),
 
 
 
+
+
+
+# Setting as in vs out of probelist (include column)
+
+#' @title Set features as included
+#' @name panelInclude
+#' @description Include features in final panel.
+#' @param x prbList object
+#' @param feats features to include
+#' @export
+panelInclude = function(x, feats) {
+  x[][feat_ID %in% feats, include := TRUE]
+  x
+}
+
+#' @title Set features as excluded
+#' @name panelExclude
+#' @description Exclude features from final panel but do not remove entry
+#' @param x prbList object
+#' @param feats features to exclude
+#' @export
+panelExclude = function(x, feats) {
+  x[][feat_ID %in% feats, include := FALSE]
+  x
+}
 
 
 

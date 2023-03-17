@@ -127,3 +127,68 @@ setMethod('comments', signature('prbList'), function(x, feats) {
 
 
 
+
+# Additional Info ####
+
+setMethod('attrValues', signature(x = 'prbList', attr = 'character', feats = 'character'),
+          function(x, attr, feats) {
+            getAttrValues(x = x, attr = attr, feats = feats)
+          })
+
+setMethod('attrValues', signature(x = 'prbList', attr = 'character', feats = 'missing'),
+          function(x, attr, panel_only = TRUE) {
+            feats = featIDs(x, panel_only = panel_only)
+            getAttrValues(x = x, attr = attr, feats = feats)
+          })
+
+getAttrValues = function(x, attr, feats) {
+  attr_vals = x[][feats, attr, with = FALSE]
+  res_tbl = data.table::data.table(feat_ID = feats)
+  res_tbl = cbind(res_tbl, attr_vals)
+  return(res_tbl)
+}
+
+
+
+setMethod('attrValues<-', signature(x = 'prbList', attr = 'character', feats = 'character', value = 'ANY'),
+          function(x, attr, feats, value) {
+            x[][feats, attr] = value
+            x
+          })
+
+
+
+#' @param x prbList
+#' @param value_tbl dataframe of values with a feature ID column
+#' @param ID_col colname of the ID column
+setAttrValues = function(x, attr, value_tbl, ID_col = 'feat_ID') {
+
+  if(!ID_col %in% colnames(value_tbl)) stop('ID_col not found in values table')
+
+  if(ncol(value_tbl) != 2L) stop(wrap_txt('values table required to be 2 cols.
+                                         col1 for IDs and col2 for values',
+                                         errWidth = TRUE))
+
+  ab_name = colnames(value_tbl)[colnames(value_tbl) != ID_col]
+
+  data.table::setDT(value_tbl)
+  data.table::setkeyv(value_tbl, ID_col)
+
+  intersect_names = intersect(value_tbl[[ID_col]], featIDs(x, panel_only = FALSE))
+
+  if(!all(intersect_names %in% featIDs(x, panel_only = FALSE))) {
+    warning(wrap_txt('Not all features found in prbList object.
+                     Missing features ignored:'))
+    print(intersect_names[!intersect_names %in% featIDs(x, panel_only = FALSE)])
+  }
+
+  intersect_ab = value_tbl[intersect_names, ab_name, with = FALSE]
+
+  x[][intersect_names, (attr) := intersect_ab]
+
+  x
+}
+
+
+
+

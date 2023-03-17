@@ -44,6 +44,8 @@ setMethod('show', signature('prbList'), function(object) {
   nfeats = nrow(object@infoDT)
   if(is.null(nfeats)) nfeats = 0L
 
+  n_in_panel = sum(object@infoDT$include)
+
   if(any(is.na(GOTerms(object)))) {
     nterms = 0L
   } else {
@@ -55,8 +57,8 @@ setMethod('show', signature('prbList'), function(object) {
 
   # prints
   cat(class(object), ': ', sep = '')
-  cat(nfeats, ' features', ', ', sep = '')
-  cat(nterms, ' GO terms', sep = '')
+  cat('Panel of ', n_in_panel, ' (out of ', nfeats,' features)\n', sep = '')
+  cat('+ ', nterms, ' GO terms', sep = '')
   cat(', separator: "', sep(object), '"', sep = '')
 
 
@@ -82,17 +84,21 @@ setMethod('initialize', signature('prbList'), function(.Object, ...) {
         separator = sep(.Object)
 
         # cleanup separator
-        .Object@infoDT = separator_cleanup(.Object@infoDT, cols = 'GO', separator = separator)
+        .Object@infoDT = run_cleanups(.Object@infoDT, cols = 'GO', separator = separator)
         if('comments' %in% colnames(.Object@infoDT)) {
-          .Object@infoDT = separator_cleanup(.Object@infoDT, cols = 'comments', separator = separator)
+          .Object@infoDT = run_cleanups(.Object@infoDT, cols = 'comments', separator = separator)
         }
 
+        # panelInclude info
+        if(!'include' %in% colnames(.Object@infoDT)) .Object@infoDT[, include := TRUE]
+        else .Object@infoDT[is.na(include), include := TRUE]
 
         # Generate GO terms info
         .Object@GO_terms = unique(unlist(strsplit(.Object@infoDT$GO, separator)))
       }
 
     .Object@infoDT = unique(.Object@infoDT)
+    data.table::setkey(.Object@infoDT, 'feat_ID')
   }
 
   if(length(GOHierarchy(.Object)) > 0) {

@@ -4,7 +4,7 @@
 \alias{writeClip}
 \title{Write to clipboard}
 \usage{
-writeClip()
+writeClip(x)
 }
 \description{
 Write to clipboard

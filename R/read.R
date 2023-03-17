@@ -32,8 +32,8 @@ readClip = function() {
 #' @title Write to clipboard
 #' @name writeClip
 #' @export
-writeClip = function() {
-  clipr::write_clip()
+writeClip = function(x) {
+  clipr::write_clip(x)
 }
 
 
@@ -238,6 +238,7 @@ remove_term = function(x, term_to_remove) {
 
 
 #' @param x data.table
+#' @noRd
 separator_cleanup = function(x, cols, separator = ':') {
   pattern = paste0('^', separator, '|', separator, '$', '|', separator, separator)
 
@@ -245,4 +246,50 @@ separator_cleanup = function(x, cols, separator = ':') {
 
   return(x)
 }
+
+
+
+#' @param x data.table
+#' @noRd
+NA_cleanup = function(x, cols, separator = ':') {
+  pattern1 = paste0('^NA', separator, '|', separator, 'NA$')
+  pattern2 = paste0(separator, 'NA', separator)
+
+  for(j in cols) set(x, j = j, value = gsub(pattern1, '', x[[j]]))
+  for(j in cols) set(x, j = j, value = gsub(pattern2, separator, x[[j]]))
+
+  return(x)
+}
+
+#' @param x data.table
+#' @noRd
+empty_cleanup = function(x, cols, separator = ':') {
+  pattern = '^$'
+
+  for(j in cols) set(x, j = j, value = gsub(pattern, NA_character_, x[[j]]))
+
+  return(x)
+}
+
+#' @noRd
+run_cleanups = function(x, cols, separator = ':') {
+  x = NA_cleanup(x, cols = cols, separator = separator)
+  x = separator_cleanup(x, cols = cols, separator = separator)
+  # x = empty_cleanup(x, cols = cols, separator = separator)
+
+  x
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

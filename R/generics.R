@@ -26,6 +26,9 @@ setGeneric('GO<-', function(x, feats, value, ...) standardGeneric('GO<-'))
 setGeneric('comments', function(x, feats, ...) standardGeneric('comments'))
 setGeneric('comments<-', function(x, feats, value, ...) standardGeneric('comments<-'))
 
+setGeneric('attrValues', function(x, attr, feats, ...) standardGeneric('attrValues'))
+setGeneric('attrValues<-', function(x, attr, feats, value, ...) standardGeneric('attrValues<-'))
+
 setGeneric('sep', function(x, ...) standardGeneric('sep'))
 setGeneric('sep<-', function(x, value, ...) standardGeneric('sep<-'))
 

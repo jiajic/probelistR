@@ -10,7 +10,7 @@
 #' @param x a prbList
 #' @param species species to draw gene reference from
 validate_gene_names = function(x, species = 'Hs') {
-  old_IDs = featIDs(x)
+  old_IDs = featIDs(x, panel_only = FALSE)
   official_IDs = limma::alias2Symbol(alias = old_IDs,
                                      species = species)
   if(!all(old_IDs %in% official_IDs)) {
