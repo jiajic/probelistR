@@ -4,7 +4,7 @@
 
 
 #' @export
-setMethod('GOTerms', signature('prbList'), function(x)  x@GO_terms)
+setMethod('GOTerms', signature('prbList'), function(x)  sort(x@GO_terms))
 
 
 #' @param x prbList

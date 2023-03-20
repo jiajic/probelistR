@@ -93,6 +93,9 @@ setMethod('initialize', signature('prbList'), function(.Object, ...) {
         if(!'include' %in% colnames(.Object@infoDT)) .Object@infoDT[, include := TRUE]
         else .Object@infoDT[is.na(include), include := TRUE]
 
+        # feature locking
+        if(!'lock' %in% colnames(.Object@infoDT)) .Object@infoDT[, lock := FALSE]
+
         # Generate GO terms info
         .Object@GO_terms = unique(unlist(strsplit(.Object@infoDT$GO, separator)))
       }

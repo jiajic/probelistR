@@ -73,6 +73,13 @@ setMethod('[<-', signature(x = 'prbList', i = 'missing', j = 'missing', value = 
           })
 
 
+#' @export
+setMethod('$', signature(x = 'prbList'), function(x, name) x@infoDT[[name]])
+
+#' @export
+setMethod('$<-', signature(x = 'prbList'), function(x, name, value) x@infoDT[[name]] = value)
+
+
 
 
 
@@ -237,6 +244,33 @@ setMethod('getFeats', signature('prbList'),
 
 
 
+# Locking features ####
+
+#' @title Feature locking
+#' @name lockFeature
+#' @aliases
+#' @description Lock important features to prevent easily excluding them from the
+#' panel by accident.
+#' @param x prbList object
+#' @param feats features to lock or unlock
+NULL
+
+#' @describeIn lockFeature Lock the designated features
+#' @export
+lockFeat = function(x, feats) {
+  x[][feats, lock := TRUE]
+  x
+}
+
+#' @describeIn lockFeature Unlock the designated features
+#' @export
+unlockFeat = function(x, feats) {
+  x[][feats, lock := FALSE]
+  x
+}
+
+
+
 # Setting as in vs out of probelist (include column)
 
 #' @title Set features as included
@@ -257,6 +291,16 @@ panelInclude = function(x, feats) {
 #' @param feats features to exclude
 #' @export
 panelExclude = function(x, feats) {
+
+  lock_feats = x[][lock == 'TRUE', feat_ID]
+
+  if(any(feats %in% lock_feats)) {
+    wrap_msg('Following features are currently locked and will not be excluded.
+             unlockFeat() first to remove them')
+    print(lock_feats)
+    feats = feats[!feats %in% lock_feats]
+  }
+
   x[][feat_ID %in% feats, include := FALSE]
   x
 }
