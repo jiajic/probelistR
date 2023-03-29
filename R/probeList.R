@@ -90,44 +90,101 @@ setMethod('$<-', signature(x = 'prbList'), function(x, name, value) x@infoDT[[na
 #' @param feat_to_add character vector of feature IDs to add
 #' @param GO_terms character vector of GO terms to apply to all feats in feat_to_add
 #' @param comments_to_add character vector of comments to apply to all feats in feat_to_add
+#' @param panel_include assign as included in panel when adding
+#' @param lock whether to directly lock the features when adding
+#' @param fill whether to treat GO_terms and comments_to_add params as fill or per feat_ID
 #' @export
 setMethod('addFeat', signature('prbList'),
           function(x, feat_to_add, GO_terms = NA_character_,
-                   comments_to_add = NA_character_) {
+                   comments_to_add = NA_character_,
+                   panel_include = TRUE,
+                   lock = FALSE,
+                   fill = NULL
+                   ) {
+
             separator = sep(x)
 
-            in_bool = feat_to_add %in% featIDs(x, panel_only = FALSE)
 
+            if(is.null(fill)) {
+              if(length(GO_terms) != length(feat_to_add)) fill = TRUE
+              else fill = FALSE
+            }
+
+
+            in_bool = feat_to_add %in% featIDs(x, panel_only = FALSE)
+            in_feats = feat_to_add[in_bool]
             out_feats = feat_to_add[!in_bool]
+
+            if(!isTRUE(fill)) {
+              in_GO = GO_terms[in_bool]
+              out_GO = GO_terms[!in_bool]
+
+              in_comments = comments_to_add[in_bool]
+              out_comments = comments_to_add[!in_bool]
+            }
 
 
             # In list
-            x[][feat_ID %in% feat_to_add, GO :=
-                  sapply(GO, function(x) unique_collapse(c(x, GO_terms), separator = separator))]
-            x[][feat_ID %in% feat_to_add, comments :=
-                  sapply(comments, function(x) unique_collapse(c(x, comments_to_add), separator = separator))]
+            if(fill) {
+
+              x[] = x[][in_feats, GO :=
+                    sapply(GO, function(x) unique_collapse(c(x, GO_terms), separator = separator))]
+              x[] = x[][in_feats, comments :=
+                    sapply(comments, function(x) unique_collapse(c(x, comments_to_add), separator = separator))]
+            } else {
+
+              x[] = x[][in_feats, GO :=
+                    sapply(seq_along(GO), function(terms_i) unique_collapse(c(GO[[terms_i]], in_GO[[terms_i]]), separator = separator))]
+              x[] = x[][in_feats, comments :=
+                    sapply(seq_along(comments), function(terms_i) unique_collapse(c(comments[[terms_i]], in_comments[[terms_i]]), separator = separator))]
+            }
+
+            if(length(out_feats) > 0) x[][feat_to_add, lock := lock]
+
+
 
             # Not in list
             if(length(out_feats) > 0L) {
+
+              if(isTRUE(fill)) {
+                GO_val = if(any(is.na(GO_terms))) NA_character_ else unique_collapse(GO_terms,
+                                                                                     separator = separator)
+                comm_val = if(any(is.na(comments_to_add))) NA_character_ else unique_collapse(comments_to_add,
+                                                                                              separator = separator)
+              } else {
+
+                GO_val = out_GO
+                comm_val = out_comments
+              }
+
+
               new_row = data.table::data.table(
                 feat_ID = out_feats,
-                GO = if(any(is.na(GO_terms))) NA else unique_collapse(GO_terms,
-                                                                 separator = separator),
-                comments = if(any(is.na(comments_to_add))) NA else unique_collapse(comments_to_add,
-                                                                       separator = separator)
+                GO = GO_val,
+                comments = comm_val,
+                include = panel_include,
+                lock = lock
               )
               x@infoDT = rbind(x@infoDT, new_row, fill = TRUE)
+              data.table::setkey(x@infoDT, 'feat_ID')
             }
+
 
             # determine in_panel
-            not_in_panel = x[][feat_ID %in% feat_to_add & include == FALSE,]
+            if(isTRUE(panel_include)) {
+              not_in_panel = x[][feat_ID %in% feat_to_add & include == FALSE,]
 
-            if(nrow(not_in_panel) != 0L) {
-              # x[] = data.table::copy(x[])
-              x[][feat_ID %in% feat_to_add & include == FALSE, include := TRUE]
-              wrap_msg('Feats reassigned as in-panel:')
-              print(not_in_panel$feat_ID)
+              if(nrow(not_in_panel) != 0L) {
+                # x[] = data.table::copy(x[])
+                x[] = x[][feat_ID %in% feat_to_add, include := TRUE]
+                wrap_msg('Feats reassigned as in-panel:')
+                print(not_in_panel$feat_ID)
+              }
             }
+
+
+            # lock if desired
+            if(lock) x[] = x[][feat_to_add, lock := TRUE]
 
 
             return(initialize(x))
@@ -297,7 +354,7 @@ panelExclude = function(x, feats) {
   if(any(feats %in% lock_feats)) {
     wrap_msg('Following features are currently locked and will not be excluded.
              unlockFeat() first to remove them')
-    print(lock_feats)
+    print(feats[feats %in% lock_feats])
     feats = feats[!feats %in% lock_feats]
   }
 

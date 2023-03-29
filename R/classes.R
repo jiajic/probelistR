@@ -83,6 +83,12 @@ setMethod('initialize', signature('prbList'), function(.Object, ...) {
 
         separator = sep(.Object)
 
+        # unique GO and comments
+        .Object@infoDT[, GO := sapply(GO, function(x) unique_collapse(x, split_separator = separator,
+                                                                      collapse_separator = separator))]
+        .Object@infoDT[, comments := sapply(comments, function(x) unique_collapse(x, split_separator = separator,
+                                                                      collapse_separator = separator))]
+
         # cleanup separator
         .Object@infoDT = run_cleanups(.Object@infoDT, cols = 'GO', separator = separator)
         if('comments' %in% colnames(.Object@infoDT)) {
