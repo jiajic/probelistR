@@ -64,14 +64,14 @@ setMethod('plotGOInteractive', signature('prbList'),
 
 # barplots ####
 
-#' @title Histogram of categories
-#' @name histGO
+#' @title Barplot of categories
+#' @name barGO
 #' @param x prbList
 #' @param query vector of term(s) to plot
 #' @param by category of term (column to use)
 #' @param orientation 'h' for horizontal (default) or 'v' for vertical
 #' @export
-histGO = function(x, query, by = 'GO', orientation = 'h') {
+barGO = function(x, query, by = 'GO', orientation = 'h') {
 
   Counts = sapply(query, function(term) {
     getFeats(x = x, query = term, by = by) |>
